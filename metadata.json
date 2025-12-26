@@ -1,0 +1,7 @@
+{
+  "name": "GLA - Creative & Technology Agency",
+  "description": "A high-end landing page for a multidisciplinary creative agency specializing in futuristic design and real-world strategy, featuring AI-powered consulting.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
