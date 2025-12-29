@@ -31,7 +31,7 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ lang }) => {
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/ai/chat', {
+      const response = await fetch('https://gla-backend-api.vercel.app/api/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,22 +42,30 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ lang }) => {
         }),
       });
 
-      const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
 
-      if (data.success) {
-        setChatHistory(prev => [...prev, { role: 'bot', text: data.response }]);
+        if (data.success) {
+          setChatHistory(prev => [...prev, { role: 'bot', text: data.response }]);
+        } else {
+          console.error('API Error:', data);
+          // Show specific error from backend if available
+          const errorMsg = data.details || data.error || (lang === 'PT' ? 'Erro desconhecido na IA' : 'Unknown AI error');
+          setChatHistory(prev => [...prev, { role: 'bot', text: `${lang === 'PT' ? 'Erro' : 'Error'}: ${errorMsg}` }]);
+        }
       } else {
-        setChatHistory(prev => [...prev, {
-          role: 'bot',
-          text: lang === 'PT' ? 'Erro ao processar sua mensagem.' : 'Error processing your message.'
-        }]);
+        const text = await response.text();
+        console.error('Status Error:', response.status, text);
+        setChatHistory(prev => [...prev, { role: 'bot', text: `${lang === 'PT' ? 'Erro no servidor' : 'Server error'} (${response.status}): ${text.substring(0, 100)}` }]);
       }
+
     } catch (error) {
-      console.error('AI Chat error:', error);
-      setChatHistory(prev => [...prev, {
-        role: 'bot',
-        text: lang === 'PT' ? 'Erro de conexão. Verifique se o servidor está rodando.' : 'Connection error. Check if the server is running.'
-      }]);
+      console.error('Fetch Error:', error);
+      let errorMessage = lang === 'PT' ? 'Erro de conexão. Tente novamente.' : 'Connection error. Please try again.';
+      if (error instanceof Error) {
+        errorMessage += ` (${error.message})`;
+      }
+      setChatHistory(prev => [...prev, { role: 'bot', text: errorMessage }]);
     } finally {
       setIsTyping(false);
     }
@@ -91,8 +99,8 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ lang }) => {
             {chatHistory.map((chat, i) => (
               <div key={i} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${chat.role === 'user'
-                    ? 'bg-primary text-background-dark font-medium rounded-tr-none'
-                    : 'bg-background-dark text-white border border-surface-border rounded-tl-none'
+                  ? 'bg-primary text-background-dark font-medium rounded-tr-none'
+                  : 'bg-background-dark text-white border border-surface-border rounded-tl-none'
                   }`}>
                   {chat.text}
                 </div>
