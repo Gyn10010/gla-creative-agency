@@ -8,9 +8,9 @@ const router = express.Router();
 
 // Initialize Google GenAI with server-side API key
 const getAI = () => {
-    const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
     if (!apiKey) {
-        throw new Error('GOOGLE_GENAI_API_KEY not configured');
+        throw new Error('GEMINI_API_KEY or GOOGLE_GENAI_API_KEY not configured');
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -33,7 +33,7 @@ router.post('/chat', async (req, res) => {
         const ai = getAI();
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.5-flash',
             contents: message,
             config: {
                 systemInstruction: `You are the AI Consultant for GLA, a futuristic design and technology agency. 

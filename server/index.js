@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import contactRoutes from './routes/contact.js';
+import contactRoutes from './routes/contact-supabase.js';
 import aiRoutes from './routes/ai.js';
 
 // Load environment variables
